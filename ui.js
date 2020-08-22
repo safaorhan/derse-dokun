@@ -193,7 +193,7 @@ function onRaiseHandButtonClick() {
 function addOverlay() {
     const overlay = document.createElement('div');
     overlay.id = "overlay"
-    document.body.append(overlay)
+    $(".crqnQb").append(overlay)
 
     const classroom = document.createElement('div')
     classroom.id = "classroom"
