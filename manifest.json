@@ -6,17 +6,26 @@
         "activeTab",
         "identity"
     ],
-    "content_scripts": [
-        {
-            "matches": [
-                "https://meet.google.com/*"
-            ],
-            "js": [
-                "ui.js",
-                "firebase-app.js",
-                "firebase-firestore.js"
-            ]
-        }
+    "web_accessible_resources": [
+        "button.html",
+        "hand-red.png",
+        "hand-blue.png",
+        "hand-green.png",
+        "hand-gray.png"
     ],
+    "content_scripts": [{
+        "matches": [
+            "https://meet.google.com/*"
+        ],
+        "js": [
+            "ui.js",
+            "jquery.js",
+            "firebase-app.js",
+            "firebase-firestore.js"
+        ],
+        "css": [
+            "styles.css"
+        ]
+    }],
     "manifest_version": 2
 }
