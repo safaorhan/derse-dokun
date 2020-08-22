@@ -1,0 +1,25 @@
+{
+    "name": "Derse Dokun",
+    "version": "0.1",
+    "description": "Google Meet'i etkileşimli bir sınıfa çevirir.",
+    "background": {
+        "scripts": [
+            
+        ],
+        "persistent": false
+    },
+    "permissions": [
+        "activeTab"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://meet.google.com/*"
+            ],
+            "js": [
+                "ui.js"
+            ]
+        }
+    ],
+    "manifest_version": 2
+}
