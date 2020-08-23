@@ -186,6 +186,7 @@ function setUpExitListener() {
 function setUpInstructorView() {
     addOverlay()
     addBoardButton()
+    addInstructorBoard()
 }
 
 function setUpStudentView() {
@@ -229,6 +230,19 @@ function addStudentBoard() {
     $.get(chrome.runtime.getURL("student-board.html"), function(src) {
         const studentBoard = htmlToElement(src);
         document.body.append(studentBoard);
+    });
+}
+
+function addInstructorBoard() {
+    if (document.querySelector('.instructor-board')) return;
+
+    $.get(chrome.runtime.getURL("instructor-board.html"), function(src) {
+        const instructorBoard = htmlToElement(src);
+        document.body.append(instructorBoard);
+        $(".list .card button").click(function() {
+            addUrlToBoard($(this).attr('data-url'));
+            hideBoard();
+        })
     });
 }
 

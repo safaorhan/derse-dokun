@@ -10,10 +10,16 @@
         "button.html",
         "board-button.html",
         "student-board.html",
+        "instructor-board.html",
         "hand-red.png",
         "hand-blue.png",
         "hand-green.png",
-        "hand-gray.png"
+        "hand-gray.png",
+        "t1.png",
+        "t2.png",
+        "t3.png",
+        "t4.png",
+        "t5.png"
     ],
     "content_scripts": [{
         "matches": [
