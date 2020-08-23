@@ -1,6 +1,8 @@
 var db = undefined;
 var user = undefined;
 var isInTheRoom = false;
+var isBoardVisible = false;
+var room = undefined;
 
 const hands = [];
 
@@ -12,6 +14,10 @@ function _meetId() {
 
 function _actionPanel() {
     return document.querySelector('.q2u11')
+}
+
+function _topPanel() {
+    return document.querySelector('.NzPR9b')
 }
 
 function onAllScriptsLoaded() {
@@ -66,17 +72,39 @@ function listenRoomData() {
     const meetId = _meetId()
 
     db.collection("rooms").doc(meetId).onSnapshot(function(doc) {
-        const room = doc.data()
+        room = doc.data()
 
-        console.log("Room: ", room);
+        if (room) {
+            if (room.instructor == user.email) {
+                console.log("Setting up instructor view.")
+                setUpInstructorView();
+            } else {
+                console.log("Setting up student view.")
+                setUpStudentView();
+            }
 
-        if (room.instructor == user.email) {
-            console.log("Setting up instructor view.")
-            setUpInstructorView();
+            setTimeout(function() {
+                if (room.board) {
+                    loadIframe(room.board);
+                    showBoard();
+                } else {
+                    unloadIframe();
+                    hideBoard();
+                }
+            }, 50)
+
         } else {
-            console.log("Setting up student view.")
-            setUpStudentView();
+            let instructor = "";
+            if (new URLSearchParams(window.location.search).get("pass") == "1234") {
+                instructor = user.email
+            }
+
+            updateRoom({
+                board: "",
+                instructor: instructor
+            })
         }
+
     });
 }
 
@@ -157,14 +185,19 @@ function setUpExitListener() {
 
 function setUpInstructorView() {
     addOverlay()
+    addBoardButton()
 }
 
 function setUpStudentView() {
     addOverlay()
     addRaiseHandButton()
+    addBoardButton()
+    addStudentBoard()
 }
 
 function addRaiseHandButton() {
+    if (document.querySelector('.handButton')) return;
+
     const actionPanel = _actionPanel();
     const handSpan = document.createElement('span');
     handSpan.id = 'handSpan'
@@ -175,8 +208,31 @@ function addRaiseHandButton() {
     });
 }
 
-function onRaiseHandButtonClick() {
+function addBoardButton() {
+    if (document.querySelector('.boardButton')) return;
 
+    const topPanel = _topPanel();
+    const timeDiv = document.querySelector('.xfd0yd');
+
+    $.get(chrome.runtime.getURL("board-button.html"), function(src) {
+        const boardButton = htmlToElement(src);
+        const dividerDiv = htmlToElement('<div class="qO3Z3c"></div>');
+        topPanel.insertBefore(dividerDiv, timeDiv);
+        topPanel.insertBefore(boardButton, timeDiv);
+        $(".boardButton").click(onBoardButtonClick);
+    });
+}
+
+function addStudentBoard() {
+    if (document.querySelector('.student-board')) return;
+
+    $.get(chrome.runtime.getURL("student-board.html"), function(src) {
+        const studentBoard = htmlToElement(src);
+        document.body.append(studentBoard);
+    });
+}
+
+function onRaiseHandButtonClick() {
     $(".handButton").off("click")
 
     if (user.raisingHand) {
@@ -190,7 +246,17 @@ function onRaiseHandButtonClick() {
     }, 1000);
 }
 
+function onBoardButtonClick() {
+    if (isBoardVisible) {
+        hideBoard();
+    } else {
+        showBoard();
+    }
+}
+
 function addOverlay() {
+    if (document.querySelector('#overlay')) return;
+
     const overlay = document.createElement('div');
     overlay.id = "overlay"
     $(".crqnQb").append(overlay)
@@ -253,4 +319,43 @@ function hideHand(i) {
         hand.classList.remove("slide-in-bottom");
         hand.classList.add("slide-out-bottom");
     }
+}
+
+function hideBoard() {
+    if (isUserInstructor()) {
+        document.querySelector(".instructor-board").style.visibility = "hidden";
+    } else {
+        document.querySelector(".student-board").style.visibility = "hidden";
+    }
+
+    isBoardVisible = false;
+}
+
+function showBoard() {
+    if (isUserInstructor()) {
+        document.querySelector(".instructor-board").style.visibility = "visible";
+    } else {
+        document.querySelector(".student-board").style.visibility = "visible";
+    }
+
+    isBoardVisible = true;
+}
+
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
+function isUserInstructor() {
+    return room.instructor == user.email
+}
+
+function loadIframe(url) {
+    document.querySelector(".iframe").src = url
+}
+
+function unloadIframe() {
+    document.querySelector(".iframe").src = ''
 }

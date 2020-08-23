@@ -8,6 +8,8 @@
     ],
     "web_accessible_resources": [
         "button.html",
+        "board-button.html",
+        "student-board.html",
         "hand-red.png",
         "hand-blue.png",
         "hand-green.png",
