@@ -19,7 +19,8 @@
         "t2.png",
         "t3.png",
         "t4.png",
-        "t5.png"
+        "t5.png",
+        "star.png"
     ],
     "content_scripts": [{
         "matches": [

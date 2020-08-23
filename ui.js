@@ -3,8 +3,10 @@ var user = undefined;
 var isInTheRoom = false;
 var isBoardVisible = false;
 var room = undefined;
+var wasPeoplePanelActive = false;
 
 const hands = [];
+const points = {};
 
 setTimeout(onAllScriptsLoaded, 2000)
 
@@ -25,6 +27,7 @@ function onAllScriptsLoaded() {
     setUpExitListener();
     user = generateUser();
     startCheckingVideoStatus();
+    startCheckingPeoplePanel();
 }
 
 function startListeningRoom() {
@@ -93,6 +96,8 @@ function listenRoomData() {
                 }
             }, 50)
 
+            if (room.cookies) startCookieTimer(room.cookies);
+
         } else {
             let instructor = "";
             if (new URLSearchParams(window.location.search).get("pass") == "1234") {
@@ -101,7 +106,8 @@ function listenRoomData() {
 
             updateRoom({
                 board: "",
-                instructor: instructor
+                instructor: instructor,
+                cookies: 1
             })
         }
 
@@ -136,6 +142,20 @@ function listenPeopleInTheRoom() {
                         }, 50)
                     }
                 }
+
+                points[person.name] = person.points;
+            }
+
+            if (document.querySelector(".cS7aqe.NkoVdd")) {
+                document.querySelectorAll(".cS7aqe.NkoVdd").forEach(function(element) {
+                    let name = element.innerHTML.replace(" (You)", "").replace(" (Siz)", "");
+                    if (name.includes("[")) name = name.slice(0, element.innerHTML.indexOf("[") - 1);
+                    console.log(name);
+                    const pts = points[name];
+                    console.log(pts);
+                    element.innerHTML = name + " [ ⭐️ " + pts + "]";
+                    console.log(element.innerHTML)
+                })
             }
         })
 }
@@ -311,6 +331,23 @@ function startCheckingVideoStatus() {
     setTimeout(startCheckingVideoStatus, 500);
 }
 
+function startCheckingPeoplePanel() {
+    var peoplePanelAvailable = document.querySelector(".cS7aqe.NkoVdd") && true
+
+    if (peoplePanelAvailable && !wasPeoplePanelActive && points.size != 0) {
+        document.querySelectorAll(".cS7aqe.NkoVdd").forEach(function(element) {
+            let name = element.innerHTML.replace(" (You)", "").replace(" (Siz)", "");
+            if (name.includes("[")) name = name.slice(0, element.innerHTML.indexOf("[") - 1);
+            const pts = points[name];
+            element.innerHTML = name + " [ ⭐️ " + pts + "]";
+        })
+    }
+
+    wasPeoplePanelActive = peoplePanelAvailable;
+
+    setTimeout(startCheckingPeoplePanel, 1000);
+}
+
 function updateUserLocally(person) {
     user.points = person.points;
     user.raisingHand = person.raisingHand;
@@ -336,6 +373,8 @@ function hideHand(i) {
 }
 
 function hideBoard() {
+    showRandomStar();
+
     if (isUserInstructor()) {
         document.querySelector(".instructor-board").style.visibility = "hidden";
     } else {
@@ -372,4 +411,34 @@ function loadIframe(url) {
 
 function unloadIframe() {
     document.querySelector(".iframe").src = ''
+}
+
+function startCookieTimer(time) {
+    setTimeout(function() {
+        showRandomStar();
+        startCookieTimer(time)
+    }, time * 60 * 1000 + (Math.random() - 0.5) * 20)
+}
+
+function showRandomStar() {
+    const star = document.createElement("div")
+    star.classList.add("star")
+    star.classList.add("star-" + getRandomInt(8))
+    star.onclick = function() {
+        collectStar();
+        if (star) star.remove();
+    }
+    document.querySelector("#overlay").append(star)
+    setTimeout(function() {
+        if (star) star.remove();
+    }, 3000)
+}
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
+function collectStar() {
+    const increaseBy = firebase.firestore.FieldValue.increment(10);
+    db.collection("people").doc(user.email).update({ points: increaseBy });
 }

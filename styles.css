@@ -332,3 +332,53 @@
 .list .card .t5 {
     background-image: url('chrome-extension://__MSG_@@extension_id__/t5.png');
 }
+
+.star {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-image: url('chrome-extension://__MSG_@@extension_id__/star.png');
+    pointer-events: all;
+}
+
+.star-0 {
+    top: 88px;
+    left: 120px;
+}
+
+.star-1 {
+    top: 128px;
+    left: 400px;
+}
+
+.star-2 {
+    top: 388px;
+    left: 870px;
+}
+
+.star-3 {
+    top: 688px;
+    left: 60px;
+}
+
+.star-4 {
+    top: 438px;
+    left: 200px;
+}
+
+.star-5 {
+    right: 90px;
+    bottom: 250px;
+}
+
+.star-6 {
+    right: 390px;
+    bottom: 450px;
+}
+
+.star-7 {
+    right: 200px;
+    bottom: 200px;
+}
